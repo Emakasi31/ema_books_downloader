@@ -1,5 +1,10 @@
 # ranobelib_books_downloader
-Download books from [ranobelib](https://ranobelib.me/)
-> exemple url: https://ranobelib.me/arifureta-shokugyou-de-sekai-saikyou-novel/v1/c0
+Download books from [RanobeLib](https://ranobelib.me/)
 
-> exempel book's name: arifureta
+## Dependencies
+`selenium`
+
+## Usage
+Run `python ranobelib_selen.py`
+> example url: https://ranobelib.me/arifureta-shokugyou-de-sekai-saikyou-novel/v1/c0
+> example book's name: arifureta
