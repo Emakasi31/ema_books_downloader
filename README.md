@@ -3,7 +3,7 @@
 ## Information
 
 > Download books from [ranobelib.me](https://ranobelib.me/) or [lightnovels.me](https://lightnovels.me/) \
-> Depends on selenium and Xvfb
+> Depends on `Selenium` and `Xvfb`
 
 
 ## Running
