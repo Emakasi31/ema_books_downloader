@@ -23,10 +23,10 @@ bash start.sh
 > docker-compose
 
 ```
-docker-compose stop && \
-docker-compose build && \
-docker-compose up -d && \
-docker-compose exec selenium bash
+docker compose stop && \
+docker compose build && \
+docker compose up -d && \
+docker compose exec selenium bash
 ```
 ```
 bash start.sh
@@ -44,29 +44,3 @@ bash start.sh
 > [lightnovels.me](https://lightnovels.me/) \
 >https://lightnovels.me/i-alone-level-up/chapter-1.html \
 >Solo leveling
-
-## Space for your own selenium code in docker
->exemple.py
-
-```
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
-from pyvirtualdisplay import Display
-#from time import sleep
-
-display = Display(visible=0, size=(800, 600))
-options = Options()
-service = Service(executable_path = "/usr/local/bin/geckodriver")
-options.add_argument('--headless') #disable display for docker
-driver = webdriver.Firefox(options=options, service=service)
-
-if __name__ == '__main__':
-    display.start()
-
-    driver.get('https://www.google.com/') #Space for your
-    print(driver.title)                   #selenium code
-
-    driver.quit()
-    display.stop()
-```
