@@ -1,14 +1,22 @@
+"""
+This file provides functions for download and format books from ranobelib.me
+"""
+from time import sleep
 from pyvirtualdisplay import Display
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.common.exceptions import NoSuchElementException
-import fileinput
-from time import sleep
+from selenium.common.exceptions import ElementNotInteractableException
+from selenium.common.exceptions import ElementClickInterceptedException
 
 
-def initiate_display(body):
-    def selenium_and_display_settings(*args, **kwargs):
+def initiate_display(body) -> None:
+    """
+    Initiate driver and display,
+    close after execution
+    """
+
+    def selenium_and_display_settings(*args, **kwargs) -> None:
         display = Display(visible=0, size=(800, 600))
         options = webdriver.FirefoxOptions()
         service = Service(executable_path="/usr/local/bin/geckodriver")
@@ -21,82 +29,96 @@ def initiate_display(body):
         display.start()
         driver.get(url)
         body(driver, *args, **kwargs)
-        driver.close()
+        driver.quit()
         display.stop()
 
     return selenium_and_display_settings
 
 
-def remove_trash(trash, book_name):
-    # Remove the target string
-    with open("{0}.txt".format(book_name), "r") as file:
-        filedata = file.read()
-    filedata = filedata.replace(str(trash), "")
-    with open("{0}.txt".format(book_name), "w") as file:
-        file.write(filedata)
-    file.close()
-
-
-def trash_list(book_name):
-    remove_trash(
-        "Внимание! Эта манга может содержать ненормативную лексику, сексуальные сцены откровенного характера, а также художественное изображение жестокости и насилия и ux cлoвecныe oпucaнuя.\n",
-        book_name,
-    )
-    remove_trash("Больше не показывать\n", book_name)
-
-
-def swith_page(driver) -> bool:
-    try:
-        fa_angle = driver.find_element_by_class_name("fa-angle-right")
-    except NoSuchElementException:
-        return False
-    fa_angle.click()
-    return True
-
-
 def close_age_warning(driver) -> None:
+    """
+    Alert may not appear, but if it does
+    runs a delay for loading page after click confirm
+    """
     try:
         driver.find_element_by_xpath(
             "/html/body/div[3]/div/div/div[2]/div/button[2]"
         ).click()
-    except Exception:
-        pass
-        sleep(0.25)  # delay for load page after alert
+    except (NoSuchElementException, ElementNotInteractableException):
+        sleep(0.25)
+
+
+def write_page_to_file(driver, book_name) -> None:
+    """Append page's text to the file"""
+    container = driver.find_element_by_class_name("reader-container")
+    with open(f"{book_name}.txt", "a+", encoding="utf-8") as file:
+        file.write(container.text + "\n\n\n")
 
 
 def return_status(driver, page_counter) -> None:
+    """Print in stdout page's number"""
     cur_url = driver.current_url
-    print(cur_url + " %d download" % (page_counter))
+    print(f"{cur_url} {page_counter} download")
+
+
+def remove_trash(book_name):
+    """Remove the target string"""
+    print("removing trash")
+    with open("ranobelib_ignore.txt", "r", encoding="utf-8") as ignore_file:
+        ignore_lines = ignore_file.readlines()  # creates a list from ignore file
+
+    with open(f"{book_name}.txt", "r", encoding="utf-8") as file:
+        filedata = file.read()  # reads data from the book
+
+    for line in ignore_lines:
+        filedata = filedata.replace(line, "")  # deletes lines from the list above
+
+    with open(f"{book_name}.txt", "w", encoding="utf-8") as file:
+        file.write(filedata)  #  rewrites the book with updated data
 
 
 def bypass_cloudflare(driver) -> None:
-    sleep(0.25)  # this delay allows to deal < 5 requests per sec
+    """Delay allows to deal < 5 requests per sec"""
+    sleep(0.25)
     driver.delete_all_cookies()
 
 
-def write_page_to_file(driver, file) -> None:
-    container = driver.find_element_by_class_name("reader-container")
-    file.write(container.text + "\n\n\n")
+def swith_page(driver) -> bool:
+    """
+    Swich to the next page button and returns a bool
+    to detect the end of the book
+    """
+    try:
+        fa_angle = driver.find_element_by_class_name("fa-angle-right")
+    except NoSuchElementException:
+        return False
+    try:
+        fa_angle.click()
+    except ElementClickInterceptedException:
+        return False
+    return True
 
 
 @initiate_display
-def parse(driver):
+def parse(driver) -> None:
+    """
+    Main function defines variables, does
+    some things and exit when can't switch page
+    """
     book_name = str(input("input book's name: "))
-    file = open("{0}.txt".format(book_name), "a+")
-    file.write("{0}\n".format(book_name) + "\n\n")
+    with open(f"{book_name}.txt", "a+", encoding="utf-8") as file:
+        file.write(f"{book_name}\n\n")  # create books file
     page_counter = 1
     while True:
         close_age_warning(driver)
-        write_page_to_file(driver, file)
-        return_status(driver, page_counter)  # print in stdout
-        trash_list(book_name)
+        write_page_to_file(driver, book_name)
+        return_status(driver, page_counter)
         bypass_cloudflare(driver)
-        if swith_page(driver) == False:
+        if swith_page(driver) is False:
             break
         page_counter += 1
-    file.close()
-    trash_list(book_name)
+    remove_trash(book_name)
 
 
 if __name__ == "__main__":
-    parse()
+    parse()  # pylint: disable=no-value-for-parameter
