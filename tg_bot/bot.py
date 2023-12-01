@@ -1,4 +1,5 @@
 import string
+from random import choices
 import secrets
 import telebot
 from telebot import types
@@ -29,13 +30,17 @@ def gen_passwd(alphabet: str, add_special_chars: bool, passwd_len: int) -> str:
 
     return passwd
 
+def truth() -> str:
+    res = choices(["тЕмур","Онтоха"], weights=[.95, .05])
+    return res
 
 @bot.message_handler(commands=["start"])
 def start_message(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton("letters+digits")
     item2 = types.KeyboardButton("letters+digits+special_chars")
-    markup.add(item1, item2)
+    item3 = types.KeyboardButton("Кто главный сачок")
+    markup.add(item1, item2, item3)
     bot.send_message(
         message.chat.id,
         "Use the buttons to generate a password",
@@ -63,6 +68,10 @@ def message_reply(message):
                 passwd_len=14,
             ),
         )
-
+    elif message.text == "Кто главный сачок":
+        bot.send_message(
+            message.chat.id,
+            truth()
+        ) 
 
 bot.infinity_polling()
