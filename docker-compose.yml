@@ -1,18 +1,6 @@
 version: "3.9"
 
 services:
-  selenium:
-    image: selen:1
-    build:
-      context: parsers
-      dockerfile: DockerfileSelenium
-    working_dir: /usr/src/app
-    ports:
-      - 4000:4000
-    volumes:
-      - ./parsers:/usr/src/app
-    stdin_open: true # docker run -i
-    tty: true # docker run -t
   tg_bot:
     image: tg_bot:1
     build:
