@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from pyvirtualdisplay import Display
+from time import sleep
 
 
 def initiate_display(body) -> None:
@@ -57,6 +58,7 @@ def parse(driver) -> None:
 
 if __name__ == "__main__":
     parse()
+    sleep(600)
 
 
 # /html/body/div[1]/div/div/div[1]/main/div[2]/article[1]/div[1]/div
