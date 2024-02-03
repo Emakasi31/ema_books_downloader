@@ -4,6 +4,7 @@ import secrets
 import telebot
 from telebot import types
 
+
 with open("/run/secrets/capybara_token", "r") as file:
     token = file.read().strip()
 bot = telebot.TeleBot(token)
@@ -30,9 +31,11 @@ def gen_passwd(alphabet: str, add_special_chars: bool, passwd_len: int) -> str:
 
     return passwd
 
+
 def truth() -> str:
-    res = choices(["тЕмур","Онтоха"], weights=[.95, .05])
+    res = choices(["тЕмур", "Онтоха"], weights=[0.95, 0.05])
     return res
+
 
 @bot.message_handler(commands=["start"])
 def start_message(message):
@@ -40,7 +43,8 @@ def start_message(message):
     item1 = types.KeyboardButton("letters+digits")
     item2 = types.KeyboardButton("letters+digits+special_chars")
     item3 = types.KeyboardButton("Кто главный сачок")
-    markup.add(item1, item2, item3)
+    item4 = types.KeyboardButton("weather")
+    markup.add(item1, item2, item3, item4)
     bot.send_message(
         message.chat.id,
         "Use the buttons to generate a password",
@@ -69,9 +73,11 @@ def message_reply(message):
             ),
         )
     elif message.text == "Кто главный сачок":
-        bot.send_message(
-            message.chat.id,
-            truth()
-        ) 
+        bot.send_message(message.chat.id, truth())
+    elif message.text == "weather":
+        with open("/usr/src/app/weather/weather.txt", "r", encoding="utf-8") as file:
+            weather = file.read()
+        bot.send_message(message.chat.id, weather)
+
 
 bot.infinity_polling()

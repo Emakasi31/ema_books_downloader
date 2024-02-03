@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   tg_bot:
-    image: tg_bot:1
+    image: tg_bot:1.4
     build:
       context: tg_bot
       dockerfile: DockerfileTgBot
@@ -11,8 +11,20 @@ services:
       - 4001:4001
     volumes:
       - ./tg_bot:/usr/src/app
+      - ./weather:/usr/src/app/weather
     secrets:
       - capybara_token
+
+  weather:
+    image: weather:1
+    build:
+      context: weather
+      dockerfile: DockerfileWeather
+    working_dir: /usr/src/app
+    ports:
+      - 4002:4002
+    volumes:
+      - ./weather:/usr/src/app
 
 secrets:
   capybara_token:
