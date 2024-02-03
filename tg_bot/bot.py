@@ -36,6 +36,9 @@ def truth() -> str:
     res = choices(["тЕмур", "Онтоха"], weights=[0.95, 0.05])
     return res
 
+def ac() -> str:
+    res = choices(["все ещё Онтоха", "наверн Онтоха", "думаю Онтоха", "тЕмур ни в чем не виноват", "Онтоха полагаю", "байбак", "проныра", "филон"], weights=[0.2, 0.2, 0.2, 0.05, 0.2, 0.05, 0.05, 0.05])
+    return res
 
 @bot.message_handler(commands=["start"])
 def start_message(message):
@@ -44,7 +47,8 @@ def start_message(message):
     item2 = types.KeyboardButton("letters+digits+special_chars")
     item3 = types.KeyboardButton("Кто главный сачок")
     item4 = types.KeyboardButton("weather")
-    markup.add(item1, item2, item3, item4)
+    item5 = types.KeyboardButton("Кто ответственный за акведук")
+    markup.add(item1, item2, item3, item4, item5)
     bot.send_message(
         message.chat.id,
         "Use the buttons to generate a password",
@@ -78,6 +82,8 @@ def message_reply(message):
         with open("/usr/src/app/weather/weather.txt", "r", encoding="utf-8") as file:
             weather = file.read()
         bot.send_message(message.chat.id, weather)
+    elif message.text == "Кто ответственный за акведук":
+        bot.send_message(message.chat.id, ac())
 
 
 bot.infinity_polling()
